@@ -67,10 +67,15 @@ class DecisionTree:
     
     def build_tree(self, X, y, depth=0):
         """
-        Recursively build the decision tree.
-        :param X: Feature matrix.
-        :param y: Target labels.
-        :param depth: Current depth of the tree.
+        Recursively builds the decision tree by splitting the dataset into subsets.
+        The process continues until the maximum depth is reached or all samples belong to the same class.
+        
+        Steps:
+        1. Checks if the maximum depth is reached or if all samples belong to the same class.
+        2. If the above condition is met, it returns the most frequent class label (leaf node).
+        3. Otherwise, it finds the best feature and threshold to split the data using `best_split` method.
+        4. The dataset is divided into left and right subsets based on the threshold, and the method is called
+        recursively for both subsets.
         :return: Tree structure (either a dictionary for a node or a class label for a leaf node).
         """
         if depth >= self.max_depth or len(np.unique(y)) == 1:
@@ -93,16 +98,14 @@ class DecisionTree:
     def fit(self, X, y):
         """
         Train the decision tree by building its structure from the dataset.
-        :param X: Feature matrix.
-        :param y: Target labels.
         """
         self.tree = self.build_tree(X, y)
     
     def predict_single(self, x, node):
         """
-        Traverse the tree for a single sample to make a prediction.
-        :param x: Single sample features.
-        :param node: Current node of the tree.
+        This method performs a recursive traversal of the decision tree. It starts at the root node and makes comparisons
+        based on the feature and threshold of each node, moving left or right depending on the feature value.
+        The process continues until a leaf node is reached, which contains the predicted class label.
         :return: Predicted class label.
         """
         if isinstance(node, dict):  # If node is not a leaf
@@ -115,16 +118,18 @@ class DecisionTree:
     def predict(self, X):
         """
         Predict class labels for a set of input samples.
-        :param X: Feature matrix.
+        This method iterates over each sample in the feature matrix X and calls the `predict_single` method for each sample.
+        The predictions are stored in an array and returned as the final output.
         :return: Array of predicted class labels.
         """
         return np.array([self.predict_single(x, self.tree) for x in X])
 
-# Example usage:
+
+# How to use:
 X = np.array([[2.7], [1.3], [3.5], [1.1], [2.2], [3.0], [1.9]])
 y = np.array([0, 1, 0, 1, 0, 0, 1])
 
-tree = DecisionTree(max_depth=3)
+tree = DecisionTree(max_depth=5)
 tree.fit(X, y)
 preds = tree.predict(X)
 print("Predictions:", preds)
